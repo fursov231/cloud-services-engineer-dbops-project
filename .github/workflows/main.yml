@@ -10,25 +10,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-      # Устанавливаем JDK, который нужен для запуска приложений, написанных на Java (Flyway)
+    ### Устанавливаем JDK, который нужен для запуска Flyway
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
         java-version: '11'
 
-      # Загружаем и устанавливаем Flyway, чтобы можно было использовать его для управления миграциями
+    ### Загружаем и устанавливаем Flyway
     - name: Install Flyway
       run: |
         curl -L -o flyway-commandline.tar.gz "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/11.1.0/flyway-commandline-11.1.0-linux-x64.tar.gz"
         tar -xzf flyway-commandline.tar.gz
         sudo ln -s `pwd`/flyway-11.1.0/flyway /usr/local/bin/flyway
 
-      # Проверяем, что Postgres работает и доступен перед выполнением миграций, чтобы избежать ошибок подключения
+    ### Проверяем, что Postgres работает и доступен перед выполнением миграций, чтобы избежать ошибок подключения
     - name: Wait for Postgres
       run: until pg_isready -h ${{ secrets.DB_HOST }} -p ${{ secrets.DB_PORT }}; do sleep 1; done
 
-      # Выполняем миграции с помощью Flyway, используя URL подключения и учётные данные для базы данных
+    ### Выполняем миграции с помощью Flyway, используя URL подключения и учётные данные для базы данных
     - name: Run Flyway migrations
       env:
         FLYWAY_URL: "jdbc:postgresql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}"
